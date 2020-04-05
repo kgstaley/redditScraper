@@ -1,3 +1,4 @@
 index.log
 client_secrets.json
 output/**
+__pycache__

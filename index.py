@@ -24,7 +24,8 @@ def callback(context, param, value):
                                                                       'generated .csv to your '
                                                                       'Google Drive? [y/n]')
 def main(name, yes_drive):
-    print('subreddit:', name)
+    subreddit = 'subreddit: ' + name
+    puts(colored.yellow(subreddit, bold=True))
 
     g_drive = None
     if yes_drive is True:
@@ -78,11 +79,10 @@ def main(name, yes_drive):
                             counter += 1
                             bar.next()
 
-                        if yes_drive is True:
-                            if counter == 100:
-                                g_file = g_drive.CreateFile()
-                                g_file.SetContentFile(file_path)
-                                g_file.Upload()
+                        if yes_drive is True and counter == 100:
+                            g_file = g_drive.CreateFile()
+                            g_file.SetContentFile(file_path)
+                            g_file.Upload()
                     else:
                         title_href = p.find('a', {'class': 'title'})['href']
                         title = p.find('a', {'class': 'title'}).text
@@ -103,11 +103,10 @@ def main(name, yes_drive):
                         counter += 1
                         bar.next()
 
-                    if yes_drive is True:
-                        if counter == 100:
-                            g_file = g_drive.CreateFile()
-                            g_file.SetContentFile(file_path)
-                            g_file.Upload()
+                    if yes_drive is True and counter == 100:
+                        g_file = g_drive.CreateFile()
+                        g_file.SetContentFile(file_path)
+                        g_file.Upload()
                 else:
                     continue
 
