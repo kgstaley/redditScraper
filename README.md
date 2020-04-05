@@ -3,6 +3,8 @@ personal subreddit web scraper to return back all items on sale on marketplace s
 
 # How to use: 
     Clone repo
+    activate Google Drive API on google dev console and retrieve credentials.json file 
+    change filename of generated credentials to client_secrets.json and move to root dir of redditScraper
     cd into root dir
     run python3 -m index
     answer questions when prompted!
