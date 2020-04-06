@@ -18,6 +18,13 @@ def callback(context, param, value):
         return True
 
 
+def fetch_reddit(u):
+    headers = {'User-Agent': 'Mozilla/5.0'}
+    new_page = requests.get(u, headers=headers)
+    new_soup = BeautifulSoup(new_page.text, 'html.parser')
+    return new_soup
+
+
 @click.command()
 @click.option('--name', prompt='What is the name of the subreddit you want to scrape?')
 @click.option('--yes-drive', default=False, callback=callback, prompt='Do you want a to upload a copy of the '
@@ -39,18 +46,18 @@ def main(name, yes_drive):
     base_url = 'https://old.reddit.com'
     target_url = 'https://reddit.com'
     scraper_url = base_url + '/r/' + name + '/new/'
-
-    headers = {'User-Agent': 'Mozilla/5.0'}
-
-    page = requests.get(scraper_url, headers=headers)
-
-    soup = BeautifulSoup(page.text, 'html.parser')
-
-    posts = soup.findAll('div', {'class': 'top-matter'})
+    counter = 1
+    next_page_link = None
 
     with Bar('processing...') as bar:
-        counter = 1
         while counter <= 100:
+            if counter == 1:
+                soup = fetch_reddit(scraper_url)
+                posts = soup.findAll('div', {'class': 'top-matter'})
+            else:
+                soup = fetch_reddit(next_page_link)
+                posts = soup.findAll('div', {'class': 'top-matter'})
+
             for p in posts:
                 is_ad = p.find('span', {'class': 'promoted-tag'})
                 if is_ad is None:
@@ -68,6 +75,7 @@ def main(name, yes_drive):
                             timestamp = date_now.strftime('%d-%b-%Y')
 
                             post_line = [utc_time_posted, flair, title, title_href, built_url]
+                            # print('\n', title)
 
                             file_name = name + '-' + timestamp + '.csv'
                             file_path = 'output/' + file_name
@@ -113,13 +121,6 @@ def main(name, yes_drive):
                 next_button = soup.find('span', {'class': 'next-button'})
                 next_page_link = next_button.find('a')['href']
                 time.sleep(2)
-
-                def get_next_page(u):
-                    new_page = requests.get(u, headers=headers)
-                    new_soup = BeautifulSoup(new_page.text, 'html.parser')
-                    return new_soup
-
-                get_next_page(next_page_link)
         else:
             bar.finish()
             with indent(4, quote='>>>'):
