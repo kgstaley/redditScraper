@@ -9,6 +9,7 @@ import click
 from clint.textui import puts, colored, indent
 from datetime import datetime
 from progress.bar import Bar
+import os
 
 
 def callback(context, param, value):
@@ -49,7 +50,7 @@ def main(name, yes_drive):
     counter = 1
     next_page_link = None
 
-    with Bar('processing...') as bar:
+    with Bar('scraping subreddit ' + name) as bar:
         while counter <= 100:
             if counter == 1:
                 soup = fetch_reddit(scraper_url)
@@ -67,18 +68,25 @@ def main(name, yes_drive):
                         flair = raw_flair.text
                     if name == 'hardwareswap':
                         if flair != 'OFFICIAL' and flair != 'BUYING' and flair != 'CLOSED':
-                            title_href = p.find('a', {'class': 'title'})['href']
+                            title_href = p.find(
+                                'a', {'class': 'title'})['href']
                             title = p.find('a', {'class': 'title'}).text
                             built_url = target_url + title_href
-                            utc_time_posted = p.find('time', {'class': 'live-timestamp'}).text
+                            utc_time_posted = p.find(
+                                'time', {'class': 'live-timestamp'}).text
                             date_now = datetime.now()
                             timestamp = date_now.strftime('%d-%b-%Y')
 
-                            post_line = [utc_time_posted, flair, title, title_href, built_url]
-                            # print('\n', title)
+                            post_line = [utc_time_posted, flair,
+                                         title, title_href, built_url]
 
                             file_name = name + '-' + timestamp + '.csv'
                             file_path = 'output/' + file_name
+
+                            if not os.path.isdir('output/'):
+                                puts(colored.blue(
+                                    'making a new output directory', bold=True))
+                                os.mkdir('output')
 
                             with open(file_path, 'a') as f:
                                 writer = csv.writer(f)
@@ -95,14 +103,21 @@ def main(name, yes_drive):
                         title_href = p.find('a', {'class': 'title'})['href']
                         title = p.find('a', {'class': 'title'}).text
                         built_url = target_url + title_href
-                        utc_time_posted = p.find('time', {'class': 'live-timestamp'}).text
+                        utc_time_posted = p.find(
+                            'time', {'class': 'live-timestamp'}).text
                         date_now = datetime.now()
                         timestamp = date_now.strftime('%d-%b-%Y')
 
-                        post_line = [utc_time_posted, flair, title, title_href, built_url]
+                        post_line = [utc_time_posted, flair,
+                                     title, title_href, built_url]
 
                         file_name = name + '-' + timestamp + '.csv'
                         file_path = 'output/' + file_name
+
+                        if not os.path.isdir('output/'):
+                            puts(colored.blue(
+                                'making a new output directory', bold=True))
+                            os.mkdir('output')
 
                         with open(file_path, 'a') as f:
                             writer = csv.writer(f)
